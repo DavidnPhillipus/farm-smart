@@ -226,7 +226,7 @@ const AddLivestock: React.FC = () => {
                 >
                   <option value="kg">kg</option>
                   <option value="lbs">lbs</option>
-                  <option value="head">head</option>
+                  <option value="head">grams</option>
                 </select>
               </div>
               {errors.avgWeight && <small className="error">{errors.avgWeight}</small>}
@@ -254,7 +254,7 @@ const AddLivestock: React.FC = () => {
             </label>
 
             <label className="form-field">
-              <span className="label-text">Purchase Date</span>
+              <span className="label-text">Production Date</span>
               <input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
             </label>
 

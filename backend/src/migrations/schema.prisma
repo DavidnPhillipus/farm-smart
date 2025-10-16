@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  username String  @unique
+  name     String
+  roles    Roles[]
+
+  notificationSettings NotificationSettings[]
+  crops                Crops[]
+  livestock          Livestock[]                 
+  welcome String
+}
+
+model Password {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  hash   String
+  user   User   @relation(fields: userId, references: id, onDelete: Cascade)
+}
+
+enum Roles {
+  FARMER,
+  BUYER
+}
+
+enum NotificationSettings {
+  CROPS
+  LIVESTOCK
+  POSTS
+}
+
+model CROPS {
+  id        Int      @id @default(autoincrement())
+  name     String
+  variety      String
+  quantity  Int
+  updatedAt DateTime @updatedAt
+  userId    Int
+  haverst_date DateTime @default(now())
+  listed Boolean  @default(false)
+  category Category[]
+  price Float
+  location Address
+  description String
+  User    User    @relation(fields: [userId], references: [id])
+}
+
+model Livestock {
+  id        Int      @id @default(autoincrement())
+  animal_type     String
+  breed      String
+  quantity  Int
+  avg_weight Float
+  units UNITS[]
+  updatedAt DateTime @updatedAt
+  userId    Int
+  production_date DateTime @default(now())
+  listed Boolean  @default(false)
+  price Float
+  location Address
+  description String
+  User    User    @relation(fields: [userId], references: [id])
+}
+
+enum{
+    GRAMS,
+    KG,
+    LBS,
+
+}
+
+model Orders{
+    id        Int      @id @default(autoincrement())
+    items Items[]
+    total Float
+    status Status[]
+    date DateTime @default(now())
+}
+
+enum Status{
+    PENDING,
+    DELIVERED
+}
+
+model Items{
+    id        Int      @id @default(autoincrement())
+    crops Crops[]
+    livestock Livestock[]
+
+}
+
+
+model Cart{
+    id        Int      @id @default(autoincrement())
+    total_cost Float,
+    cart_items CItems[]
+}
+
+model CardItem{
+    id        Int      @id @default(autoincrement())
+    crops Crops[]
+    livestock Livestock[]
+    quantity Int
+    price Float
+}
+
+
+
+
+
+
+
+
+ 
