@@ -1,4 +1,4 @@
-import FarmerDashboard from "./FarmerDashboard";
+import FarmerDashboard from "./AddLivestock";
 
 function App() {
   return (

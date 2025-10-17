@@ -101,7 +101,7 @@ const FarmerDashboard: React.FC = () => {
       {/* MAIN */}
       <main className="main" onClick={closeMobile}>
         <header className="header">
-          <h1>Welcome Back, David 👨‍🌾</h1>
+          <h1>Welcome Back, David </h1>
           <p>Here’s what’s happening on your farm today.</p>
         </header>
 
