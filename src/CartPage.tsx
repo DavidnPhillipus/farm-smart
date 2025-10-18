@@ -1,69 +1,94 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { FaSeedling, FaShoppingCart, FaClipboardList, FaChartLine, FaBars, FaUserCircle } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import "./CartPage.css";
 
 interface CartItem {
   id: number;
-  name: string;
-  category: "Crop" | "Livestock" | "Other";
-  price: string;
-  image: string;
-  inCart: boolean;
+  listing: {
+    name: string;
+    category: "Crop" | "Livestock" | "Other";
+    price: string;
+    image: string;
+  };
   quantity: number;
 }
 
 const CartPage: React.FC = () => {
+  const { token, name } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "Fresh Maize",
-      category: "Crop",
-      price: "$15 / 10kg",
-      image: "https://images.unsplash.com/photo-1603068689799-31a1d4b17c1d?auto=format&fit=crop&w=800&q=80",
-      inCart: true,
-      quantity: 2,
-    },
-    {
-      id: 3,
-      name: "Free-range Eggs",
-      category: "Livestock",
-      price: "$8 / dozen",
-      image: "https://images.unsplash.com/photo-1589927986089-358123789ae7?auto=format&fit=crop&w=800&q=80",
-      inCart: true,
-      quantity: 3,
-    },
-    {
-      id: 5,
-      name: "Carrots",
-      category: "Crop",
-      price: "$20 / 10kg",
-      image: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&w=800&q=80",
-      inCart: true,
-      quantity: 1,
-    },
-  ]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
-  const closeSidebar = () => setSidebarOpen(false);
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
-  const removeFromCart = (id: number) => {
-    setCartItems(prev => prev.filter(item => item.id !== id));
+  const fetchCart = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/cart', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch cart');
+      setCartItems(await res.json());
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateQuantity = (id: number, delta: number) => {
-    setCartItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
-      )
-    );
+  const removeFromCart = async (id: number) => {
+    try {
+      await fetch(`/api/cart/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      fetchCart();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const updateQuantity = async (id: number, delta: number) => {
+    try {
+      await fetch(`/api/cart/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ delta }),
+      });
+      fetchCart();
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const handleCheckout = async () => {
+    try {
+      await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ cartItems }),
+      });
+      fetchCart();
+      alert("Checkout successful!");
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
   const totalCost = cartItems.reduce((sum, item) => {
-    const priceNum = parseFloat(item.price.replace(/[^0-9.]/g, ""));
+    const priceNum = parseFloat(item.listing.price.replace(/[^0-9.]/g, ""));
     return sum + priceNum * item.quantity;
   }, 0);
+
+  const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
+  const closeSidebar = () => setSidebarOpen(false);
 
   return (
     <div className="cart-container">
@@ -79,10 +104,10 @@ const CartPage: React.FC = () => {
           <h2>FarmSmart</h2>
         </div>
         <ul className="sidebar-links">
-          <li>
+          <li onClick={() => navigate('/buyer-dashboard')}>
             <FaChartLine /> Dashboard
           </li>
-          <li>
+          <li onClick={() => navigate('/orders')}>
             <FaClipboardList /> My Orders
           </li>
           <li className="active">
@@ -91,7 +116,7 @@ const CartPage: React.FC = () => {
         </ul>
         <div className="sidebar-footer">
           <FaUserCircle className="profile-icon" />
-          <p className="profile-name">David Phillipus</p>
+          <p className="profile-name">{name || 'User'}</p>
         </div>
       </aside>
 
@@ -102,6 +127,8 @@ const CartPage: React.FC = () => {
           <h1>Your Cart</h1>
           <p>Review and manage items in your cart before checkout.</p>
         </header>
+
+        {error && <small className="error">{error}</small>}
 
         <section className="stats">
           <div className="stat-card blue">
@@ -116,24 +143,26 @@ const CartPage: React.FC = () => {
 
         <section className="cart-items">
           <h2>Cart Items</h2>
-          {cartItems.length === 0 ? (
+          {loading ? (
+            <p className="no-items">Loading...</p>
+          ) : cartItems.length === 0 ? (
             <p className="no-items">Your cart is empty.</p>
           ) : (
             <div className="cart-grid">
               {cartItems.map(item => (
                 <article className="cart-card" key={item.id}>
                   <div className="card-media">
-                    <img src={item.image} alt={item.name} />
+                    <img src={item.listing.image} alt={item.listing.name} />
                   </div>
                   <div className="cart-info">
                     <div className="info-top">
-                      <h3>{item.name}</h3>
-                      <span className="badge">{item.category}</span>
+                      <h3>{item.listing.name}</h3>
+                      <span className="badge">{item.listing.category}</span>
                     </div>
                     <div className="meta">
                       <div>
                         <strong>Price</strong>
-                        <div className="muted">{item.price}</div>
+                        <div className="muted">{item.listing.price}</div>
                       </div>
                       <div>
                         <strong>Quantity</strong>
@@ -171,7 +200,7 @@ const CartPage: React.FC = () => {
 
         {cartItems.length > 0 && (
           <section className="checkout">
-            <button className="checkout-btn">Proceed to Checkout</button>
+            <button className="checkout-btn" onClick={handleCheckout}>Proceed to Checkout</button>
           </section>
         )}
       </main>

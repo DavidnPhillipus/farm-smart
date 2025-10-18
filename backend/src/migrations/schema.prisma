@@ -8,116 +8,106 @@ datasource db {
 }
 
 model User {
-  id       Int     @id @default(autoincrement())
-  email    String  @unique
-  username String  @unique
-  name     String
-  roles    Roles[]
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  notificationSettings NotificationSettings[]
-  crops                Crops[]
-  livestock          Livestock[]                 
-  welcome String
+  crops     Crop[]
+  listings  Listing[]
+  cartItems CartItem[]
+  orders    Order[]
+  activities Activity[]
+
+  @@map("users")
 }
 
-model Password {
-  id     Int    @id @default(autoincrement())
-  userId Int    @unique
-  hash   String
-  user   User   @relation(fields: userId, references: id, onDelete: Cascade)
-}
-
-enum Roles {
-  FARMER,
+enum Role {
+  FARMER
   BUYER
 }
 
-enum NotificationSettings {
-  CROPS
-  LIVESTOCK
-  POSTS
+model Crop {
+  id            Int      @id @default(autoincrement())
+  userId        Int
+  cropName      String
+  variety       String?
+  quantity      Float
+  unit          String   @default("kg")
+  harvestDate   DateTime
+  pricePerUnit  Float    @default(0)
+  category      String   @default("Vegetable")
+  location      String?
+  description   String?
+  imageUrls     Json[]   // Array of S3 URLs
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id])
+  listing       Listing?
+
+  @@map("crops")
 }
 
-model CROPS {
+model Listing {
   id        Int      @id @default(autoincrement())
-  name     String
-  variety      String
-  quantity  Int
-  updatedAt DateTime @updatedAt
+  name      String
+  category  String
+  price     String   // e.g., "$15 / 10kg"
+  image     String?  // Main image URL
   userId    Int
-  haverst_date DateTime @default(now())
-  listed Boolean  @default(false)
-  category Category[]
-  price Float
-  location Address
-  description String
-  User    User    @relation(fields: [userId], references: [id])
-}
-
-model Livestock {
-  id        Int      @id @default(autoincrement())
-  animal_type     String
-  breed      String
-  quantity  Int
-  avg_weight Float
-  units UNITS[]
+  cropId    Int?     @unique
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  userId    Int
-  production_date DateTime @default(now())
-  listed Boolean  @default(false)
-  price Float
-  location Address
+
+  user      User     @relation(fields: [userId], references: [id])
+  crop      Crop?    @relation(fields: [cropId], references: [id])
+  cartItems CartItem[]
+  orders    Order[]
+
+  @@map("listings")
+}
+
+model CartItem {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  listingId  Int
+  quantity   Int      @default(1)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id])
+  listing    Listing  @relation(fields: [listingId], references: [id])
+
+  @@unique([userId, listingId])
+  @@map("cart_items")
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  listingId  Int
+  quantity   Int
+  status     String   @default("pending") // pending, approved, completed
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id])
+  listing    Listing  @relation(fields: [listingId], references: [id])
+
+  @@map("orders")
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  userId      Int
   description String
-  User    User    @relation(fields: [userId], references: [id])
+  createdAt   DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("activities")
 }
-
-enum{
-    GRAMS,
-    KG,
-    LBS,
-
-}
-
-model Orders{
-    id        Int      @id @default(autoincrement())
-    items Items[]
-    total Float
-    status Status[]
-    date DateTime @default(now())
-}
-
-enum Status{
-    PENDING,
-    DELIVERED
-}
-
-model Items{
-    id        Int      @id @default(autoincrement())
-    crops Crops[]
-    livestock Livestock[]
-
-}
-
-
-model Cart{
-    id        Int      @id @default(autoincrement())
-    total_cost Float,
-    cart_items CItems[]
-}
-
-model CardItem{
-    id        Int      @id @default(autoincrement())
-    crops Crops[]
-    livestock Livestock[]
-    quantity Int
-    price Float
-}
-
-
-
-
-
-
-
-
- 

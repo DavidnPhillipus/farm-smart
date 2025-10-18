@@ -1,5 +1,15 @@
-import React, { useState } from "react";
-import { FaSeedling, FaShoppingCart, FaClipboardList, FaChartLine, FaBars, FaUserCircle } from "react-icons/fa";
+import React, { useEffect, useState, useContext } from "react";
+import {
+  FaSeedling,
+  FaShoppingCart,
+  FaClipboardList,
+  FaChartLine,
+  FaBars,
+  FaUserCircle,
+  FaSignOutAlt,
+} from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../context/AuthContext';
 import "./BuyerDashboard.css";
 
 interface ListingItem {
@@ -8,79 +18,94 @@ interface ListingItem {
   category: "Crop" | "Livestock" | "Other";
   price: string;
   image: string;
-  inCart: boolean;
+}
+
+interface CartItem {
+  id: number;
+  listing: ListingItem;
+  quantity: number;
 }
 
 const BuyerDashboard: React.FC = () => {
+  const { token, name, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [listings, setListings] = useState<ListingItem[]>([
-    {
-      id: 1,
-      name: "Fresh Maize",
-      category: "Crop",
-      price: "$15 / 10kg",
-      image: "https://images.unsplash.com/photo-1603068689799-31a1d4b17c1d?auto=format&fit=crop&w=800&q=80",
-      inCart: false,
-    },
-    {
-      id: 2,
-      name: "Organic Tomatoes",
-      category: "Crop",
-      price: "$10 / 5kg",
-      image: "https://images.unsplash.com/photo-1587049352846-4a222e784d38?auto=format&fit=crop&w=800&q=80",
-      inCart: false,
-    },
-    {
-      id: 3,
-      name: "Free-range Eggs",
-      category: "Livestock",
-      price: "$8 / dozen",
-      image: "https://images.unsplash.com/photo-1589927986089-358123789ae7?auto=format&fit=crop&w=800&q=80",
-      inCart: false,
-    },
-    {
-      id: 4,
-      name: "Beef Cattle",
-      category: "Livestock",
-      price: "$550 each",
-      image: "https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=800&q=80",
-      inCart: false,
-    },
-    {
-      id: 5,
-      name: "Carrots",
-      category: "Crop",
-      price: "$20 / 10kg",
-      image: "https://images.unsplash.com/photo-1601004890684-d8cbf643f5f2?auto=format&fit=crop&w=800&q=80",
-      inCart: false,
-    },
-    {
-      id: 6,
-      name: "Potatoes",
-      category: "Crop",
-      price: "$25 / 25kg",
-      image: "https://images.unsplash.com/photo-1576179635661-26c92e1f3677?auto=format&fit=crop&w=800&q=80",
-      inCart: false,
-    },
-    {
-      id: 7,
-      name: "Honey",
-      category: "Other",
-      price: "$12 / 500g",
-      image: "https://images.unsplash.com/photo-1505577058444-a3dab87b9f32?auto=format&fit=crop&w=800&q=80",
-      inCart: false,
-    },
-  ]);
+  const [listings, setListings] = useState<ListingItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [stats, setStats] = useState({ totalPurchases: 0, pendingOrders: 0, itemsInCart: 0, totalSpent: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const toggleSidebar = () => setSidebarOpen(!sidebarOpen);
   const closeSidebar = () => setSidebarOpen(false);
 
-  const toggleCart = (id: number) => {
-    setListings(prev =>
-      prev.map(item => (item.id === id ? { ...item, inCart: !item.inCart } : item))
-    );
+  useEffect(() => {
+    fetchListings();
+    fetchStats();
+    fetchCart();
+  }, []);
+
+  const fetchListings = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`/api/listings?searchTerm=${searchTerm}&category=${selectedCategory}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch listings');
+      setListings(await res.json());
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch('/api/stats/buyer', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch stats');
+      setStats(await res.json());
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const fetchCart = async () => {
+    try {
+      const res = await fetch('/api/cart', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch cart');
+      setCartItems(await res.json());
+    } catch (err: any) {
+      setError(err.message);
+    }
+  };
+
+  const toggleCart = async (listingId: number, inCart: boolean) => {
+    try {
+      if (inCart) {
+        const cartItem = cartItems.find(item => item.listing.id === listingId);
+        if (!cartItem) return;
+        await fetch(`/api/cart/${cartItem.id}`, {
+          method: 'DELETE',
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      } else {
+        await fetch('/api/cart/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ listingId }),
+        });
+      }
+      fetchCart();
+    } catch (err: any) {
+      setError(err.message);
+    }
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,16 +116,9 @@ const BuyerDashboard: React.FC = () => {
     setSelectedCategory(e.target.value);
   };
 
-  const filteredListings = listings.filter(
-    item =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
-      (selectedCategory === "All" || item.category === selectedCategory)
-  );
-
-  const itemsInCart = listings.filter(item => item.inCart).length;
-  const totalSpent = 3240; // Static for demo purposes
-  const pendingOrders = 5; // Static for demo purposes
-  const totalPurchases = 24; // Static for demo purposes
+  useEffect(() => {
+    fetchListings();
+  }, [searchTerm, selectedCategory]);
 
   return (
     <div className="dashboard-container">
@@ -116,19 +134,22 @@ const BuyerDashboard: React.FC = () => {
           <h2>FarmSmart</h2>
         </div>
         <ul className="sidebar-links">
-          <li className="active">
+          <li className="active" onClick={() => navigate('/buyer-dashboard')}>
             <FaChartLine /> Dashboard
           </li>
-          <li>
+          <li onClick={() => navigate('/orders')}>
             <FaClipboardList /> My Orders
           </li>
-          <li>
+          <li onClick={() => navigate('/cart')}>
             <FaShoppingCart /> Cart
           </li>
         </ul>
         <div className="sidebar-footer">
           <FaUserCircle className="profile-icon" />
-          <p className="profile-name">David Phillipus</p>
+          <p className="profile-name">{name || 'User'}</p>
+          <button onClick={logout} className="logout-btn">
+            <FaSignOutAlt /> Logout
+          </button>
         </div>
       </aside>
 
@@ -136,26 +157,28 @@ const BuyerDashboard: React.FC = () => {
 
       <main className="main">
         <header className="header">
-          <h1>Welcome Back, David 👋</h1>
+          <h1>Welcome Back, {name} 👋</h1>
           <p>Browse and purchase available crops, livestock, and more from our farmers.</p>
         </header>
+
+        {error && <small className="error">{error}</small>}
 
         <section className="stats">
           <div className="stat-card blue">
             <h3>Total Purchases</h3>
-            <h1>{totalPurchases}</h1>
+            <h1>{stats.totalPurchases}</h1>
           </div>
           <div className="stat-card green">
             <h3>Pending Orders</h3>
-            <h1>{pendingOrders}</h1>
+            <h1>{stats.pendingOrders}</h1>
           </div>
           <div className="stat-card orange">
             <h3>Items in Cart</h3>
-            <h1>{itemsInCart}</h1>
+            <h1>{stats.itemsInCart}</h1>
           </div>
           <div className="stat-card red">
             <h3>Total Spent</h3>
-            <h1>${totalSpent.toLocaleString()}</h1>
+            <h1>${stats.totalSpent.toLocaleString()}</h1>
           </div>
         </section>
 
@@ -177,43 +200,48 @@ const BuyerDashboard: React.FC = () => {
 
         <section className="listings">
           <h2>Available Listings</h2>
-          {filteredListings.length === 0 ? (
+          {loading ? (
+            <p className="no-results">Loading...</p>
+          ) : listings.length === 0 ? (
             <p className="no-results">No listings match your search.</p>
           ) : (
             <div className="listing-grid">
-              {filteredListings.map(item => (
-                <article className="listing-card" key={item.id}>
-                  <div className="card-media">
-                    <img src={item.image} alt={item.name} />
-                  </div>
-                  <div className="listing-info">
-                    <div className="info-top">
-                      <h3>{item.name}</h3>
-                      <span className={`badge ${item.inCart ? "badge-in-cart" : "badge-available"}`}>
-                        {item.inCart ? "In Cart" : "Available"}
-                      </span>
+              {listings.map(item => {
+                const inCart = cartItems.some(c => c.listing.id === item.id);
+                return (
+                  <article className="listing-card" key={item.id}>
+                    <div className="card-media">
+                      <img src={item.image} alt={item.name} />
                     </div>
-                    <div className="meta">
-                      <div>
-                        <strong>Category</strong>
-                        <div className="muted">{item.category}</div>
+                    <div className="listing-info">
+                      <div className="info-top">
+                        <h3>{item.name}</h3>
+                        <span className={`badge ${inCart ? "badge-in-cart" : "badge-available"}`}>
+                          {inCart ? "In Cart" : "Available"}
+                        </span>
                       </div>
-                      <div>
-                        <strong>Price</strong>
-                        <div className="muted">{item.price}</div>
+                      <div className="meta">
+                        <div>
+                          <strong>Category</strong>
+                          <div className="muted">{item.category}</div>
+                        </div>
+                        <div>
+                          <strong>Price</strong>
+                          <div className="muted">{item.price}</div>
+                        </div>
+                      </div>
+                      <div className="card-actions">
+                        <button
+                          className={`toggle-btn ${inCart ? "remove" : "add"}`}
+                          onClick={() => toggleCart(item.id, inCart)}
+                        >
+                          {inCart ? "Remove from Cart" : "Add to Cart"}
+                        </button>
                       </div>
                     </div>
-                    <div className="card-actions">
-                      <button
-                        className={`toggle-btn ${item.inCart ? "remove" : "add"}`}
-                        onClick={() => toggleCart(item.id)}
-                      >
-                        {item.inCart ? "Remove from Cart" : "Add to Cart"}
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           )}
         </section>
@@ -222,4 +250,4 @@ const BuyerDashboard: React.FC = () => {
   );
 };
 
-export default BuyerDashboard;
+export default BuyerDashboard

@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  crops      Crop[]
+  livestock  Livestock[]
+  listings   Listing[]
+  cartItems  CartItem[]
+  orders     Order[]
+  activities Activity[]
+
+  @@map("users")
+}
+
+enum Role {
+  FARMER
+  BUYER
+}
+
+model Crop {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  cropName     String
+  variety      String?
+  quantity     Float
+  unit         String   @default("kg")
+  harvestDate  DateTime
+  pricePerUnit Float    @default(0)
+  category     String   @default("Vegetable")
+  location     String?
+  description  String?
+  imageUrls    Json[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id])
+  listing Listing?
+
+  @@map("crops")
+}
+
+model Livestock {
+  id            Int       @id @default(autoincrement())
+  userId        Int
+  animalType    String
+  breed         String?
+  quantity      Float
+  avgWeight     Float?
+  weightUnit    String    @default("kg")
+  ageMonths     Int?
+  healthStatus  String    @default("Healthy")
+  purchaseDate  DateTime?
+  purchasePrice Float     @default(0)
+  location      String?
+  notes         String?
+  imageUrls     Json[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user    User     @relation(fields: [userId], references: [id])
+  listing Listing?
+
+  @@map("livestock")
+}
+
+model Listing {
+  id          Int      @id @default(autoincrement())
+  name        String
+  category    String
+  price       String
+  image       String?
+  userId      Int
+  cropId      Int?     @unique
+  livestockId Int?     @unique
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user      User       @relation(fields: [userId], references: [id])
+  crop      Crop?      @relation(fields: [cropId], references: [id])
+  livestock Livestock? @relation(fields: [livestockId], references: [id])
+  cartItems CartItem[]
+  orders    Order[]
+
+  @@map("listings")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  listingId Int
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@unique([userId, listingId])
+  @@map("cart_items")
+}
+
+model Order {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  listingId Int
+  quantity  Int
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user    User    @relation(fields: [userId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+
+  @@map("orders")
+}
+
+model Activity {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  description String
+  createdAt   DateTime @default(now())
+  read        Boolean  @default(false)
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("activities")
+}

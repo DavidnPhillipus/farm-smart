@@ -10,28 +10,30 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import "./AddCrop.css";
+import { AuthContext } from '../../context/AuthContext';
+import "./AddLivestock.css";
 
-type Unit = "kg" | "bags" | "units" | "litres";
+type Unit = "kg" | "lbs" | "head";
 
-const AddCrop: React.FC = () => {
+const AddLivestock: React.FC = () => {
   const { token, name } = useContext(AuthContext);
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [isMobile, setIsMobile] = useState<boolean>(() =>
+  const [isMobile, setIsMobile] = useState<boolean>(
     typeof window !== "undefined" ? window.innerWidth <= 768 : false
   );
 
-  const [cropName, setCropName] = useState("");
-  const [variety, setVariety] = useState("");
+  const [animalType, setAnimalType] = useState("");
+  const [breed, setBreed] = useState("");
   const [quantity, setQuantity] = useState<number | "">("");
-  const [unit, setUnit] = useState<Unit>("kg");
-  const [harvestDate, setHarvestDate] = useState("");
-  const [pricePerUnit, setPricePerUnit] = useState<number | "">("");
-  const [category, setCategory] = useState("Vegetable");
+  const [avgWeight, setAvgWeight] = useState<number | "">("");
+  const [weightUnit, setWeightUnit] = useState<Unit>("kg");
+  const [ageMonths, setAgeMonths] = useState<number | "">("");
+  const [healthStatus, setHealthStatus] = useState("Healthy");
+  const [purchaseDate, setPurchaseDate] = useState("");
+  const [purchasePrice, setPurchasePrice] = useState<number | "">("");
   const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
+  const [notes, setNotes] = useState("");
   const [images, setImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -75,10 +77,10 @@ const AddCrop: React.FC = () => {
 
   const validate = () => {
     const err: Record<string, string> = {};
-    if (!cropName.trim()) err.cropName = "Crop name is required.";
+    if (!animalType.trim()) err.animalType = "Animal type is required.";
     if (!quantity || Number(quantity) <= 0) err.quantity = "Enter a valid quantity.";
-    if (!harvestDate) err.harvestDate = "Select harvest date.";
-    if (!pricePerUnit || Number(pricePerUnit) < 0) err.pricePerUnit = "Enter price (0 or more).";
+    if (avgWeight !== "" && Number(avgWeight) < 0) err.avgWeight = "Enter a valid weight.";
+    if (purchasePrice !== "" && Number(purchasePrice) < 0) err.purchasePrice = "Enter a valid price.";
     setErrors(err);
     return Object.keys(err).length === 0;
   };
@@ -114,29 +116,34 @@ const AddCrop: React.FC = () => {
     try {
       const imageUrls = await uploadImagesToS3();
       const payload = {
-        cropName,
-        variety,
+        animalType,
+        breed,
         quantity: Number(quantity),
-        unit,
-        harvestDate,
-        pricePerUnit: Number(pricePerUnit),
-        category,
+        avgWeight: avgWeight === "" ? null : Number(avgWeight),
+        weightUnit,
+        ageMonths: ageMonths === "" ? null : Number(ageMonths),
+        healthStatus,
+        purchaseDate,
+        purchasePrice: purchasePrice === "" ? null : Number(purchasePrice),
         location,
-        description,
+        notes,
         imageUrls,
       };
-      const res = await fetch('/api/crops', {
+      const res = await fetch('/api/livestock', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),
       });
-      if (!res.ok) throw new Error('Failed to save crop');
-      setCropName("");
-      setVariety("");
+      if (!res.ok) throw new Error('Failed to save livestock');
+      setAnimalType("");
+      setBreed("");
       setQuantity("");
-      setPricePerUnit("");
-      setHarvestDate("");
-      setDescription("");
+      setAvgWeight("");
+      setAgeMonths("");
+      setPurchaseDate("");
+      setPurchasePrice("");
+      setLocation("");
+      setNotes("");
       setImages([]);
       setImagePreviews([]);
       setErrors({});
@@ -178,8 +185,8 @@ const AddCrop: React.FC = () => {
 
           <ul className="sidebar-links" role="menu">
             <li role="menuitem" tabIndex={0} onClick={() => navigate('/dashboard')}><FaChartLine /> <span>Dashboard</span></li>
-            <li className="active" role="menuitem" tabIndex={0}><FaPlusCircle /> <span>Add Crops</span></li>
-            <li role="menuitem" tabIndex={0} onClick={() => navigate('/add-livestock')}><FaPlusCircle /> <span>Add Livestock</span></li>
+            <li role="menuitem" tabIndex={0} onClick={() => navigate('/add-crops')}><FaPlusCircle /> <span>Add Crops</span></li>
+            <li className="active" role="menuitem" tabIndex={0}><FaPlusCircle /> <span>Add Livestock</span></li>
             <li role="menuitem" tabIndex={0} onClick={() => navigate('/inventory')}><FaWarehouse /> <span>Inventory</span></li>
             <li role="menuitem" tabIndex={0} onClick={() => navigate('/notifications')}><FaBell /> <span>Notifications</span></li>
           </ul>
@@ -193,31 +200,31 @@ const AddCrop: React.FC = () => {
 
       <main className="main" onClick={closeMobile}>
         <header className="header">
-          <h1>Add New Crop</h1>
-          <p>Register a harvest or inventory item. Fill required fields and save.</p>
+          <h1>Add Livestock</h1>
+          <p>Register livestock entries — required fields marked with *</p>
         </header>
 
-        <form className="add-crop-form" onSubmit={handleSubmit} noValidate>
+        <form className="add-livestock-form" onSubmit={handleSubmit} noValidate>
           <div className="form-grid">
             <label className="form-field">
-              <span className="label-text">Crop Name *</span>
+              <span className="label-text">Animal Type *</span>
               <input
                 type="text"
-                value={cropName}
-                onChange={(e) => setCropName(e.target.value)}
-                placeholder="e.g. Maize"
-                aria-invalid={!!errors.cropName}
+                value={animalType}
+                onChange={(e) => setAnimalType(e.target.value)}
+                placeholder="e.g. Cattle, Goat"
+                aria-invalid={!!errors.animalType}
               />
-              {errors.cropName && <small className="error">{errors.cropName}</small>}
+              {errors.animalType && <small className="error">{errors.animalType}</small>}
             </label>
 
             <label className="form-field">
-              <span className="label-text">Variety</span>
+              <span className="label-text">Breed</span>
               <input
                 type="text"
-                value={variety}
-                onChange={(e) => setVariety(e.target.value)}
-                placeholder="e.g. Yellow dent"
+                value={breed}
+                onChange={(e) => setBreed(e.target.value)}
+                placeholder="e.g. Brahman, Boer"
               />
             </label>
 
@@ -227,7 +234,7 @@ const AddCrop: React.FC = () => {
                 type="number"
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value === "" ? "" : Number(e.target.value))}
-                placeholder="e.g. 50"
+                placeholder="e.g. 10"
                 min={0}
                 aria-invalid={!!errors.quantity}
               />
@@ -235,47 +242,65 @@ const AddCrop: React.FC = () => {
             </label>
 
             <label className="form-field">
-              <span className="label-text">Unit</span>
-              <select value={unit} onChange={(e) => setUnit(e.target.value as Unit)}>
-                <option value="kg">kg</option>
-                <option value="bags">bags</option>
-                <option value="units">units</option>
-                <option value="litres">litres</option>
-              </select>
+              <span className="label-text">Avg Weight</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <input
+                  type="number"
+                  value={avgWeight}
+                  onChange={(e) => setAvgWeight(e.target.value === "" ? "" : Number(e.target.value))}
+                  placeholder="e.g. 250"
+                  min={0}
+                  style={{ flex: 1 }}
+                />
+                <select
+                  value={weightUnit}
+                  onChange={(e) => setWeightUnit(e.target.value as Unit)}
+                  style={{ width: 90 }}
+                >
+                  <option value="kg">kg</option>
+                  <option value="lbs">lbs</option>
+                  <option value="head">grams</option>
+                </select>
+              </div>
+              {errors.avgWeight && <small className="error">{errors.avgWeight}</small>}
             </label>
 
             <label className="form-field">
-              <span className="label-text">Harvest Date *</span>
-              <input
-                type="date"
-                value={harvestDate}
-                onChange={(e) => setHarvestDate(e.target.value)}
-                aria-invalid={!!errors.harvestDate}
-              />
-              {errors.harvestDate && <small className="error">{errors.harvestDate}</small>}
-            </label>
-
-            <label className="form-field">
-              <span className="label-text">Price per unit (optional)</span>
+              <span className="label-text">Age (months)</span>
               <input
                 type="number"
-                value={pricePerUnit}
-                onChange={(e) => setPricePerUnit(e.target.value === "" ? "" : Number(e.target.value))}
-                placeholder="e.g. 12.50"
+                value={ageMonths}
+                onChange={(e) => setAgeMonths(e.target.value === "" ? "" : Number(e.target.value))}
+                placeholder="e.g. 12"
                 min={0}
               />
-              {errors.pricePerUnit && <small className="error">{errors.pricePerUnit}</small>}
             </label>
 
             <label className="form-field">
-              <span className="label-text">Category</span>
-              <select value={category} onChange={(e) => setCategory(e.target.value)}>
-                <option>Vegetable</option>
-                <option>Fruit</option>
-                <option>Grain</option>
-                <option>Legume</option>
-                <option>Other</option>
+              <span className="label-text">Health Status</span>
+              <select value={healthStatus} onChange={(e) => setHealthStatus(e.target.value)}>
+                <option>Healthy</option>
+                <option>Needs Attention</option>
+                <option>Sick</option>
+                <option>Quarantined</option>
               </select>
+            </label>
+
+            <label className="form-field">
+              <span className="label-text">Production Date</span>
+              <input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} />
+            </label>
+
+            <label className="form-field">
+              <span className="label-text">Purchase Price</span>
+              <input
+                type="number"
+                value={purchasePrice}
+                onChange={(e) => setPurchasePrice(e.target.value === "" ? "" : Number(e.target.value))}
+                placeholder="e.g. 1200"
+                min={0}
+              />
+              {errors.purchasePrice && <small className="error">{errors.purchasePrice}</small>}
             </label>
 
             <label className="form-field">
@@ -284,33 +309,28 @@ const AddCrop: React.FC = () => {
                 type="text"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
-                placeholder="e.g. Field A - Plot 3"
+                placeholder="e.g. Pasture A"
               />
             </label>
 
             <label className="form-field form-field-full">
-              <span className="label-text">Description</span>
+              <span className="label-text">Notes</span>
               <textarea
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
                 rows={4}
-                placeholder="Optional notes about the crop, quality, storage..."
+                placeholder="Optional notes about health, feed, tags..."
               />
             </label>
 
             <label className="form-field form-field-full">
               <span className="label-text">Images (max 5)</span>
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleImageChange}
-              />
+              <input type="file" accept="image/*" multiple onChange={handleImageChange} />
               <div className="image-preview-row">
                 {imagePreviews.length === 0 && <small className="hint">No images selected</small>}
                 {imagePreviews.map((src, i) => (
                   <div className="image-preview" key={i}>
-                    <img src={src} alt={`preview-${i}`} />
+                    <img src={src} alt={`livestock-preview-${i}`} />
                   </div>
                 ))}
               </div>
@@ -320,24 +340,11 @@ const AddCrop: React.FC = () => {
           {apiError && <small className="error">{apiError}</small>}
 
           <div className="form-actions">
-            <button type="submit" className="add-btn" disabled={loading}><FaPlusCircle /> {loading ? 'Saving...' : 'Save Crop'}</button>
+            <button type="submit" className="add-btn" disabled={loading}><FaPlusCircle /> {loading ? 'Saving...' : 'Save Livestock'}</button>
             <button
               type="button"
               className="cancel-btn"
-              onClick={() => {
-                setCropName("");
-                setVariety("");
-                setQuantity("");
-                setUnit("kg");
-                setHarvestDate("");
-                setPricePerUnit("");
-                setCategory("Vegetable");
-                setLocation("");
-                setDescription("");
-                setImages([]);
-                setImagePreviews([]);
-                setErrors({});
-              }}
+              onClick={() => navigate('/dashboard')}
             >
               Cancel
             </button>
@@ -348,4 +355,4 @@ const AddCrop: React.FC = () => {
   );
 };
 
-export default AddCrop;
+export default AddLivestock;
