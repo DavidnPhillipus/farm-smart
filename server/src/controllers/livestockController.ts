@@ -1,5 +1,5 @@
 import express from 'express';
-import { createLivestock } from '../controllers/livestockController';
+import { createLivestock } from './livestockController';
 import { authenticate, isFarmer } from '../middleware/authMiddleware';
 
 const router = express.Router();
