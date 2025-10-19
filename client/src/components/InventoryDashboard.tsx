@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { FaSeedling, FaWarehouse, FaChartLine, FaPlusCircle, FaBell, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import "./InventoryDashboard.css";
 
 interface InventoryItem {

@@ -9,5 +9,5 @@ export const getActivities = async (req: Request, res: Response) => {
     orderBy: { createdAt: 'desc' },
     take: 5,
   });
-  res.json(activities.map(a => a.description));
+  res.json(activities.map((a: any) => a.description));
 };

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import { generateToken } from '../utils/jwtUtils.js';
+import { generateToken } from '../utils/jwtUtils';
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;

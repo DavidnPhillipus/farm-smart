@@ -11,7 +11,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import "./FarmerDashboard.css";
 
 const FarmerDashboard: React.FC = () => {

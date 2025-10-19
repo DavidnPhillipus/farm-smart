@@ -13,7 +13,7 @@ import orderRoutes from './routes/orderRoutes';
 import statsRoutes from './routes/statsRoutes';
 import activityRoutes from './routes/activityRoutes';
 import uploadRoutes from './routes/uploadRoutes';
-import inventoryRoutes from './routes/inventoryRoutes';
+import inventoryRoutes from './routes/InventoryRoute';
 import notificationRoutes from './routes/notificationRoutes';
 
 dotenv.config();

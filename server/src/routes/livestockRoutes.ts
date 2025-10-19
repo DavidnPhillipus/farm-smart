@@ -1,9 +1,9 @@
 import express from 'express';
-import { getListings } from '../controllers/listingController';
-import { authenticate, isBuyer } from '../middleware/authMiddleware';
+import { createLivestock } from '../controllers/livestockController';
+import { authenticate, isFarmer } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-router.get('/', authenticate, isBuyer, getListings);
+router.post('/', authenticate, isFarmer, createLivestock);
 
-export default router
+export default router;

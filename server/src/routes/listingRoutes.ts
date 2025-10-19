@@ -1,6 +1,6 @@
 import express from "express";
-import { getListings } from "../controllers/listingController.js";
-import { authenticate, isBuyer } from "../middleware/authMiddleware.js";
+import { getListings } from "../controllers/listingController";
+import { authenticate, isBuyer } from "../middleware/authMiddleware";
 
 const router = express.Router();
 

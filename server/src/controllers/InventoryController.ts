@@ -8,7 +8,7 @@ export const getInventory = async (req: Request, res: Response) => {
   const livestock = await prisma.livestock.findMany({ where: { userId }, include: { listing: true } });
 
   const inventory = [
-    ...crops.map(c => ({
+    ...crops.map((c: any) => ({
       id: c.id,
       name: c.cropName,
       category: c.category,
@@ -18,7 +18,7 @@ export const getInventory = async (req: Request, res: Response) => {
       image: c.imageUrls[0] || '',
       type: 'crop',
     })),
-    ...livestock.map(l => ({
+    ...livestock.map((l: any) => ({
       id: l.id,
       name: l.animalType,
       category: 'Livestock',

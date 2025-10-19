@@ -1,5 +1,5 @@
 import express from 'express';
-import { getInventory, toggleListing } from '../controllers/inventoryController';
+import { getInventory, toggleListing } from '../controllers/InventoryController';
 import { authenticate, isFarmer } from '../middleware/authMiddleware';
 
 const router = express.Router();

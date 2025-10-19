@@ -1,26 +1,47 @@
-import express from 'express';
-import { createLivestock } from './livestockController';
-import { authenticate, isFarmer } from '../middleware/authMiddleware';
-
-const router = express.Router();
-
-router.post('/', authenticate, isFarmer, createLivestock);
-
-export default router;
-```
-
-**src/controllers/listingController.ts**
-```typescript
 import { Request, Response } from 'express';
 
-export const getListings = async (req: Request, res: Response) => {
+export const createLivestock = async (req: Request, res: Response) => {
   const prisma = (req as any).prisma;
-  const { searchTerm, category } = req.query;
+  const userId = (req as any).user.id;
+  const { animalType, breed, quantity, avgWeight, weightUnit, ageMonths, healthStatus, purchaseDate, purchasePrice, location, notes, imageUrls } = req.body;
 
-  const where: any = {};
-  if (searchTerm) where.name = { contains: searchTerm as string, mode: 'insensitive' };
-  if (category && category !== 'All') where.category = category as string;
+  const livestock = await prisma.livestock.create({
+    data: {
+      userId,
+      animalType,
+      breed,
+      quantity,
+      avgWeight,
+      weightUnit,
+      ageMonths,
+      healthStatus,
+      purchaseDate: purchaseDate ? new Date(purchaseDate) : undefined,
+      purchasePrice,
+      location,
+      notes,
+      imageUrls,
+    },
+  });
 
-  const listings = await prisma.listing.findMany({ where, include: { crop: true, livestock: true } });
-  res.json(listings);
-}
+  if (purchasePrice > 0) {
+    await prisma.listing.create({
+      data: {
+        name: animalType,
+        category: 'Livestock',
+        price: `$${purchasePrice} / head`,
+        image: imageUrls[0] || '',
+        userId,
+        livestockId: livestock.id,
+      },
+    });
+  }
+
+  await prisma.activity.create({
+    data: {
+      userId,
+      description: `${quantity} ${animalType} added to inventory`,
+    },
+  });
+
+  res.json(livestock);
+};

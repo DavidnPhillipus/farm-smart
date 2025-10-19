@@ -33,7 +33,7 @@ export const getOrders = async (req: Request, res: Response) => {
 
 export const updateOrderStatus = async (req: Request, res: Response) => {
   const prisma = (req as any).prisma;
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id || '0');
 
   const order = await prisma.order.update({
     where: { id },

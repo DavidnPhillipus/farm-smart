@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { generatePresignedUrl } from '../services/s3Service.js';
+import { generatePresignedUrl } from '../services/s3Service';
 
 export const getUploadUrl = async (req: Request, res: Response) => {
   const { fileName, fileType } = req.body;

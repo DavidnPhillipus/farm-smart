@@ -10,7 +10,7 @@ import {
   FaTimes,
 } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import "./AddLivestock.css";
 
 type Unit = "kg" | "lbs" | "head";

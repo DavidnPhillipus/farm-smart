@@ -14,7 +14,7 @@ export const getNotifications = async (req: Request, res: Response) => {
 
 export const markNotificationRead = async (req: Request, res: Response) => {
   const prisma = (req as any).prisma;
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id || '0');
   const userId = (req as any).user.id;
 
   const notification = await prisma.activity.findUnique({

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { FaSeedling, FaShoppingCart, FaClipboardList, FaChartLine, FaBars, FaUserCircle } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../context/AuthContext';
+import { AuthContext } from '../context/AuthContext';
 import "./OrdersPage.css";
 
 interface OrderItem {
