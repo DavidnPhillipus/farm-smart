@@ -20,8 +20,9 @@ const createCrop = async (req, res) => {
             imageUrls,
         },
     });
-    if (pricePerUnit > 0) {
-        await prisma.listing.create({
+    let listing = null;
+    if (pricePerUnit && pricePerUnit > 0) {
+        listing = await prisma.listing.create({
             data: {
                 name: cropName,
                 category,
@@ -38,7 +39,7 @@ const createCrop = async (req, res) => {
             description: `${quantity}${unit} ${cropName} added to inventory`,
         },
     });
-    res.json(crop);
+    res.json({ ...crop, listing });
 };
 exports.createCrop = createCrop;
 //# sourceMappingURL=cropController.js.map

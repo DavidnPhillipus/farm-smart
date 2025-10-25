@@ -12,7 +12,7 @@ export const login = async (req: Request, res: Response) => {
   }
 
   const token = generateToken({ id: user.id, role: user.role });
-  res.json({ token, role: user.role, name: user.name });
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 };
 
 export const register = async (req: Request, res: Response) => {
@@ -28,7 +28,7 @@ export const register = async (req: Request, res: Response) => {
   });
 
   const token = generateToken({ id: user.id, role: user.role });
-  res.json({ token, role: user.role, name: user.name });
+  res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 };
 
 export const getMe = async (req: Request, res: Response) => {

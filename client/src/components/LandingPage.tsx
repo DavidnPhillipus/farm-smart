@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import "./LandingPage.css";
+import digitalFarmerImg from '../assets/digitalfarmer.jpg';
+import whyChooseImg from '../assets/whychoose.jpeg';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -16,9 +18,11 @@ const LandingPage = () => {
           <li><a href="#about">About</a></li>
           <li><a href="#features">Features</a></li>
           <li><a href="#why">Why FarmSmart</a></li>
-          <li><a href="#contact">Contact</a></li>
-          <li><button className="login-btn" onClick={() => navigate('/login')}>Login</button></li>
         </ul>
+        <div className="nav-buttons">
+          <button type="button" className="nav-btn nav-btn-outline" onClick={() => navigate('/login')}>Login</button>
+          <button type="button" className="nav-btn nav-btn-primary" onClick={() => navigate('/register')}>Register</button>
+        </div>
       </nav>
 
       {/* ===== HERO SECTION ===== */}
@@ -38,8 +42,8 @@ const LandingPage = () => {
         </div>
         <div className="hero-image">
           <img
-            src="https://images.pexels.com/photos/93398/pexels-photo-93398.jpeg"
-            alt="Farmer using tablet"
+            src={digitalFarmerImg}
+            alt="Digital Farmer"
           />
         </div>
       </section>
@@ -73,7 +77,8 @@ const LandingPage = () => {
         <h2>Features</h2>
         <div className="feature-grid">
           <div className="feature-card">
-            <h3>🌾 For Farmers</h3>
+            
+            <h3>For Farmers</h3>
             <ul>
               <li>Track crops and livestock in real time.</li>
               <li>Monitor harvests, stock levels, and sales.</li>
@@ -81,7 +86,8 @@ const LandingPage = () => {
             </ul>
           </div>
           <div className="feature-card">
-            <h3>🛒 For Buyers</h3>
+            
+            <h3>For Buyers</h3>
             <ul>
               <li>Browse and buy farm products easily.</li>
               <li>Filter by product type, category, and price.</li>
@@ -89,7 +95,8 @@ const LandingPage = () => {
             </ul>
           </div>
           <div className="feature-card">
-            <h3>💼 For Everyone</h3>
+            
+            <h3>For Everyone</h3>
             <ul>
               <li>Secure accounts and real-time dashboards.</li>
               <li>Modern design accessible on all devices.</li>
@@ -104,20 +111,24 @@ const LandingPage = () => {
         <h2>How It Works</h2>
         <div className="steps">
           <div className="step">
-            <span className="icon">1️⃣</span>
-            <p>Register your account as a Farmer or Buyer.</p>
+            <span className="step-number">1</span>
+            <h3>Register</h3>
+            <p>Create your account as a Farmer or Buyer.</p>
           </div>
           <div className="step">
-            <span className="icon">2️⃣</span>
-            <p>Farmers add products or livestock with details.</p>
+            <span className="step-number">2</span>
+            <h3>Add Products</h3>
+            <p>Farmers add crops or livestock with details.</p>
           </div>
           <div className="step">
-            <span className="icon">3️⃣</span>
+            <span className="step-number">3</span>
+            <h3>Browse & Buy</h3>
             <p>Buyers browse listings and make purchases.</p>
           </div>
           <div className="step">
-            <span className="icon">4️⃣</span>
-            <p>Track your sales and farm progress via dashboard.</p>
+            <span className="step-number">4</span>
+            <h3>Track Progress</h3>
+            <p>Monitor sales and farm progress via dashboard.</p>
           </div>
         </div>
       </section>
@@ -133,25 +144,30 @@ const LandingPage = () => {
             direct-from-farm produce with transparency and trust.
           </p>
           <ul>
-            <li>✔ Digital farm record management</li>
-            <li>✔ Transparent buyer-seller relationships</li>
-            <li>✔ Data-driven insights for better decisions</li>
-            <li>✔ Trusted, secure transactions</li>
+            <li>Digital farm record management</li>
+            <li>Transparent buyer-seller relationships</li>
+            <li>Data-driven insights for better decisions</li>
+            <li>Trusted, secure transactions</li>
           </ul>
         </div>
         <div className="why-image">
           <img
-            src="https://images.pexels.com/photos/296230/pexels-photo-296230.jpeg"
-            alt="Farmer with produce"
+            src={whyChooseImg}
+            alt="Why Choose FarmSmart"
           />
         </div>
       </section>
 
       {/* ===== CTA SECTION ===== */}
       <section className="cta" id="contact">
-        <h2>Take control of your farm operations today.</h2>
-        <p>Join thousands of farmers using FarmSmart to grow smarter.</p>
-        <button type="button" className="btn btn-light" onClick={() => navigate('/register')}>Join as a Farmer</button>
+        <div className="cta-content">
+          <h2>Ready to get started?</h2>
+          <p>Join FarmSmart today and connect with the agricultural community.</p>
+          <div className="cta-buttons">
+            <button type="button" className="btn btn-primary" onClick={() => navigate('/register')}>Get Started</button>
+            <button type="button" className="btn btn-outline" onClick={() => navigate('/login')}>Sign In</button>
+          </div>
+        </div>
       </section>
 
       {/* ===== FOOTER ===== */}

@@ -14,7 +14,7 @@ const login = async (req, res) => {
         return res.status(401).json({ message: 'Invalid credentials' });
     }
     const token = (0, jwtUtils_1.generateToken)({ id: user.id, role: user.role });
-    res.json({ token, role: user.role, name: user.name });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 };
 exports.login = login;
 const register = async (req, res) => {
@@ -28,7 +28,7 @@ const register = async (req, res) => {
         data: { name, email, password: hashedPassword, role: role.toUpperCase() },
     });
     const token = (0, jwtUtils_1.generateToken)({ id: user.id, role: user.role });
-    res.json({ token, role: user.role, name: user.name });
+    res.json({ token, user: { id: user.id, name: user.name, email: user.email, role: user.role } });
 };
 exports.register = register;
 const getMe = async (req, res) => {

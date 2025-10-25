@@ -157,7 +157,7 @@ const BuyerDashboard: React.FC = () => {
 
       <main className="main">
         <header className="header">
-          <h1>Welcome Back, {name} 👋</h1>
+          <h1>Welcome Back, {name}</h1>
           <p>Browse and purchase available crops, livestock, and more from our farmers.</p>
         </header>
 
@@ -211,7 +211,7 @@ const BuyerDashboard: React.FC = () => {
                 return (
                   <article className="listing-card" key={item.id}>
                     <div className="card-media">
-                      <img src={item.image} alt={item.name} />
+                      <img src={item.image || "https://via.placeholder.com/600x400?text=No+Image"} alt={item.name} />
                     </div>
                     <div className="listing-info">
                       <div className="info-top">

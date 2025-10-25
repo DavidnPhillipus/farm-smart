@@ -21,8 +21,9 @@ export const createCrop = async (req: Request, res: Response) => {
     },
   });
 
-  if (pricePerUnit > 0) {
-    await prisma.listing.create({
+  let listing = null;
+  if (pricePerUnit && pricePerUnit > 0) {
+    listing = await prisma.listing.create({
       data: {
         name: cropName,
         category,
@@ -41,5 +42,5 @@ export const createCrop = async (req: Request, res: Response) => {
     },
   });
 
-  res.json(crop);
+  res.json({ ...crop, listing });
 };

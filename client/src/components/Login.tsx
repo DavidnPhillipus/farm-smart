@@ -43,7 +43,7 @@ const Login: React.FC = () => {
 
       <div className="auth-container">
         <div className="auth-card">
-          <h2>Welcome Back 👋</h2>
+          <h2>Welcome Back </h2>
           <p className="subtitle">Sign in to manage your farm smarter</p>
 
           <form onSubmit={handleSubmit}>

@@ -34,8 +34,7 @@ const AddLivestock: React.FC = () => {
   const [purchasePrice, setPurchasePrice] = useState<number | "">("");
   const [location, setLocation] = useState("");
   const [notes, setNotes] = useState("");
-  const [images, setImages] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [imageUrl, setImageUrl] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
@@ -50,30 +49,8 @@ const AddLivestock: React.FC = () => {
     if (!isMobile) setMobileOpen(false);
   }, [isMobile]);
 
-  useEffect(() => {
-    if (!images.length) {
-      setImagePreviews([]);
-      return;
-    }
-    const readers = images.map(
-      (file) =>
-        new Promise<string>((resolve) => {
-          const r = new FileReader();
-          r.onload = () => resolve(String(r.result));
-          r.readAsDataURL(file);
-        })
-    );
-    Promise.all(readers).then((paths) => setImagePreviews(paths));
-  }, [images]);
-
   const toggleMobile = () => setMobileOpen((s) => !s);
   const closeMobile = () => setMobileOpen(false);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!e.target.files) return;
-    const files = Array.from(e.target.files).slice(0, 5);
-    setImages(files);
-  };
 
   const validate = () => {
     const err: Record<string, string> = {};
@@ -85,27 +62,7 @@ const AddLivestock: React.FC = () => {
     return Object.keys(err).length === 0;
   };
 
-  const uploadImagesToS3 = async () => {
-    const urls: string[] = [];
-    for (const file of images) {
-      const res = await fetch('/api/upload/url', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ fileName: file.name, fileType: file.type }),
-      });
-      if (!res.ok) throw new Error('Failed to get presigned URL');
-      const { url } = await res.json();
 
-      const uploadRes = await fetch(url, {
-        method: 'PUT',
-        body: file,
-        headers: { 'Content-Type': file.type },
-      });
-      if (!uploadRes.ok) throw new Error('Failed to upload to S3');
-      urls.push(url.split('?')[0]);
-    }
-    return urls;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,7 +71,7 @@ const AddLivestock: React.FC = () => {
     setApiError(null);
 
     try {
-      const imageUrls = await uploadImagesToS3();
+      const imageUrls = imageUrl ? [imageUrl] : [];
       const payload = {
         animalType,
         breed,
@@ -144,8 +101,7 @@ const AddLivestock: React.FC = () => {
       setPurchasePrice("");
       setLocation("");
       setNotes("");
-      setImages([]);
-      setImagePreviews([]);
+      setImageUrl("");
       setErrors({});
       navigate('/dashboard');
     } catch (err: any) {
@@ -324,16 +280,20 @@ const AddLivestock: React.FC = () => {
             </label>
 
             <label className="form-field form-field-full">
-              <span className="label-text">Images (max 5)</span>
-              <input type="file" accept="image/*" multiple onChange={handleImageChange} />
-              <div className="image-preview-row">
-                {imagePreviews.length === 0 && <small className="hint">No images selected</small>}
-                {imagePreviews.map((src, i) => (
-                  <div className="image-preview" key={i}>
-                    <img src={src} alt={`livestock-preview-${i}`} />
+              <span className="label-text">Image URL</span>
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="e.g. https://example.com/image.jpg"
+              />
+              {imageUrl && (
+                <div className="image-preview-row">
+                  <div className="image-preview">
+                    <img src={imageUrl} alt="preview" onError={() => console.warn('Image failed to load')} />
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
             </label>
           </div>
 

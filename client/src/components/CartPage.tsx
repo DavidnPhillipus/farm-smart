@@ -22,6 +22,8 @@ const CartPage: React.FC = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   useEffect(() => {
     fetchCart();
@@ -68,16 +70,39 @@ const CartPage: React.FC = () => {
   };
 
   const handleCheckout = async () => {
+    if (cartItems.length === 0) {
+      setError('Your cart is empty');
+      return;
+    }
+
+    setIsCheckingOut(true);
+    setError(null);
+    setSuccessMessage(null);
+
     try {
-      await fetch('/api/orders', {
+      const res = await fetch('/api/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ cartItems }),
       });
-      fetchCart();
-      alert("Checkout successful!");
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Checkout failed');
+      }
+
+      await res.json();
+      setSuccessMessage('Order placed successfully! Farmers have been notified.');
+
+      // Clear cart and redirect after 2 seconds
+      setTimeout(() => {
+        fetchCart();
+        navigate('/orders');
+      }, 2000);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || 'Failed to process checkout');
+    } finally {
+      setIsCheckingOut(false);
     }
   };
 
@@ -129,6 +154,11 @@ const CartPage: React.FC = () => {
         </header>
 
         {error && <small className="error">{error}</small>}
+        {successMessage && (
+          <div className="success-message">
+            <p>{successMessage}</p>
+          </div>
+        )}
 
         <section className="stats">
           <div className="stat-card blue">
@@ -200,7 +230,14 @@ const CartPage: React.FC = () => {
 
         {cartItems.length > 0 && (
           <section className="checkout">
-            <button className="checkout-btn" onClick={handleCheckout}>Proceed to Checkout</button>
+            <button
+              className="checkout-btn"
+              onClick={handleCheckout}
+              disabled={isCheckingOut}
+              type="button"
+            >
+              {isCheckingOut ? 'Processing...' : 'Proceed to Checkout'}
+            </button>
           </section>
         )}
       </main>

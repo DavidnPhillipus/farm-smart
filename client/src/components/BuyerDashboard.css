@@ -177,6 +177,9 @@ body {
   display: flex;
   gap: 1rem;
   margin-bottom: 1.5rem;
+  background: var(--gray-50);
+  padding: 1rem;
+  border-radius: 0.75rem;
 }
 
 .search-input {

@@ -1,0 +1,404 @@
+/* ============================================
+   GLOBAL STYLES - Shared across all components
+   ============================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+/* ============================================
+   CSS VARIABLES
+   ============================================ */
+:root {
+  --sidebar-width: 220px;
+  --accent-green: #2e7d32;
+  --accent-green-dark: #1b5e20;
+  --card-yellow: #FBC02D;
+  --card-yellow-hover: #f9a825;
+  --text-primary: #222;
+  --text-secondary: #666;
+  --text-light: #333;
+  --bg-light: #f4f9f4;
+  --bg-white: #fff;
+  --border-color: #e6e6e6;
+  --error-color: #b00020;
+  --shadow-sm: 0 4px 10px rgba(0,0,0,0.06);
+  --shadow-md: 2px 0 12px rgba(0,0,0,0.12);
+  --shadow-lg: 0 8px 30px rgba(0,0,0,0.35);
+  --transition-fast: 0.2s ease;
+  --transition-normal: 280ms ease;
+}
+
+/* ============================================
+   BASE RESETS
+   ============================================ */
+* { box-sizing: border-box; }
+html, body, #root { height: 100%; }
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: var(--bg-light);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   LAYOUT WRAPPER
+   ============================================ */
+.dashboard-wrapper {
+  height: 100vh;
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ============================================
+   SIDEBAR STYLES
+   ============================================ */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: var(--sidebar-width);
+  background: linear-gradient(180deg, var(--accent-green), var(--accent-green-dark));
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 1rem;
+  box-shadow: var(--shadow-md);
+  z-index: 40;
+  transition: transform var(--transition-normal);
+  overflow: visible;
+}
+
+.sidebar.open { transform: translateX(0); }
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.logo-icon { font-size: 1.8rem; }
+
+.sidebar-links {
+  list-style: none;
+  padding: 0;
+  margin-top: 2.5rem;
+}
+
+.sidebar-links li {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.sidebar-links li.active,
+.sidebar-links li:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.sidebar-footer {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  padding-bottom: 1rem;
+  margin-top: 1rem;
+}
+
+.profile-icon { font-size: 2.5rem; margin-bottom: 0.2rem; }
+.profile-name { margin: 0; font-weight: 600; }
+
+/* ============================================
+   MAIN CONTENT AREA
+   ============================================ */
+.main {
+  margin-left: var(--sidebar-width);
+  flex: 1;
+  padding: 2rem 3rem;
+  height: 100vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.6rem;
+  color: var(--accent-green);
+}
+
+.header p {
+  margin: 0.4rem 0 1.2rem;
+  color: var(--text-secondary);
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  align-items: start;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field-full { grid-column: 1 / -1; }
+
+.label-text {
+  font-weight: 600;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+/* Form inputs and selects */
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="email"],
+input[type="password"],
+select,
+textarea,
+input[type="file"] {
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-white);
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 2;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: outline var(--transition-fast);
+}
+
+option {
+  color: var(--text-primary);
+  background: var(--bg-white);
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  outline: 3px solid rgba(46, 125, 50, 0.12);
+  outline-offset: 2px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ============================================
+   IMAGE PREVIEW
+   ============================================ */
+.image-preview-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.image-preview {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================
+   FORM MESSAGES
+   ============================================ */
+.hint {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.error {
+  color: var(--error-color);
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+.success-message {
+  background: #c8e6c9;
+  color: #2e7d32;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  border-left: 4px solid #2e7d32;
+  animation: slideIn 0.3s ease-out;
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.form-actions {
+  margin-top: 1.25rem;
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+}
+
+.add-btn,
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--card-yellow);
+  color: var(--accent-green);
+  border: none;
+  padding: 0.7rem 1rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.add-btn:hover,
+.btn-primary:hover {
+  background: var(--card-yellow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 192, 45, 0.3);
+}
+
+.cancel-btn,
+.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--accent-green);
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--accent-green);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.cancel-btn:hover,
+.btn-secondary:hover {
+  background: var(--accent-green);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.checkout-btn {
+  background: var(--card-yellow);
+  color: var(--accent-green);
+  border: none;
+  padding: 0.7rem 1.5rem;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.checkout-btn:hover:not(:disabled) {
+  background: var(--card-yellow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 192, 45, 0.3);
+}
+
+.checkout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   MOBILE HEADER & OVERLAY
+   ============================================ */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 60;
+}
+
+.hamburger-btn {
+  background: rgba(0, 0, 0, 0.18);
+  color: white;
+  border: none;
+  padding: 0.56rem;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.mobile-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 50;
+}
+
+.mobile-overlay.show { display: block; }
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+@media (max-width: 768px) {
+  :root { --sidebar-width: 260px; }
+
+  .sidebar {
+    transform: translateX(-120%);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .sidebar.open { transform: translateX(0); }
+
+  .mobile-header { display: block; }
+
+  .main {
+    margin-left: 0;
+    padding: 1rem;
+  }
+
+  .form-grid { grid-template-columns: 1fr; }
+  .form-field-full { grid-column: auto; }
+
+  select { z-index: 9999; position: relative; }
+}
+

@@ -50,13 +50,13 @@ const Register: React.FC = () => {
 
       <div className="auth-container">
         <div className="auth-card">
-          <h2>Create Account 🌱</h2>
+          <h2>Create Account </h2>
           <p className="subtitle">Join FarmSmart and grow smarter</p>
 
           <form onSubmit={handleSubmit}>
             <div className="form-group">
               <label htmlFor="name">Full Name</label>
-              <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="John Doe" required />
+              <input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="David Phillipus" required />
             </div>
 
             <div className="form-group">

@@ -23,7 +23,7 @@ export const createLivestock = async (req: Request, res: Response) => {
     },
   });
 
-  if (purchasePrice > 0) {
+  if (purchasePrice && purchasePrice > 0) {
     await prisma.listing.create({
       data: {
         name: animalType,

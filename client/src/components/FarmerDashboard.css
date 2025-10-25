@@ -1,98 +1,7 @@
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+@import url("../styles/global.css");
 
-:root {
-  --sidebar-width: 220px;
-  --sidebar-bg-start: #2e7d32;
-  --sidebar-bg-end: #1b5e20;
-}
-
-/* reset basics */
-* { box-sizing: border-box; }
-html, body, #root { height: 100%; }
-body {
-  margin: 0;
-  background: #f4f9f4;
-  font-family: "Poppins", sans-serif;
-  color: #333;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Wrapper keeps the page exactly one viewport high (desktop) */
-.dashboard-wrapper {
-  height: 100vh;
-  display: flex;
-  overflow: hidden;
-  position: relative;
-}
-
-/* Sidebar - fixed on desktop. Slide-in on mobile */
-.sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  height: 100vh;
-  width: var(--sidebar-width);
-  background: linear-gradient(180deg, var(--sidebar-bg-start), var(--sidebar-bg-end));
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 2rem 1rem;
-  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.12);
-  z-index: 40;
-  transition: transform 280ms ease, box-shadow 280ms ease;
-  transform: translateX(0); /* default visible on desktop */
-}
-
-.sidebar-top { /* groups top area for spacing */ }
-
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  gap: .6rem;
-}
-.logo-icon { font-size: 1.8rem; }
-.sidebar-links {
-  list-style: none;
-  padding: 0;
-  margin-top: 2.5rem;
-}
-.sidebar-links li {
-  display: flex;
-  align-items: center;
-  gap: .8rem;
-  padding: .8rem 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background .25s;
-}
-.sidebar-links li:hover, .sidebar-links li.active {
-  background: rgba(255,255,255,0.12);
-}
-
-.sidebar-footer {
-  text-align: center;
-  margin-top: 1rem;
-}
-.profile-icon { font-size: 2.5rem; margin-bottom: .4rem; }
-.profile-name { margin: 0; font-weight: 600; }
-
-/* Main content - takes remaining width */
-.main {
-  margin-left: var(--sidebar-width);
-  flex: 1;
-  padding: 2rem 3rem;
-  height: 100vh;
-  overflow: auto; /* allow internal scrolling if content exceeds viewport */
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-/* Header & Stats */
-.header h1 { font-size: 2rem; font-weight: 700; color: #2e7d32; margin: 0; }
-.header p { color: #666; margin: .5rem 0 1.5rem; }
+/* FarmerDashboard-specific styles */
+.header h1 { font-size: 2rem; font-weight: 700; }
 
 .stats {
   display: grid;
@@ -129,56 +38,7 @@ body {
 }
 .add-btn:hover { filter: brightness(.98); transform: translateY(-2px); }
 
-/* Mobile: hide sidebar and show hamburger. Sidebar becomes off-canvas */
-.mobile-header {
-  display: none;
-  position: fixed;
-  top: 12px;
-  left: 12px;
-  z-index: 60;
-}
-.hamburger-btn {
-  background: rgba(0,0,0,0.18);
-  color: white;
-  border: none;
-  padding: .56rem;
-  border-radius: 8px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
 
-.mobile-overlay {
-  display: none;
-}
-
-/* Breakpoints */
-@media (max-width: 768px) {
-  :root { --sidebar-width: 260px; } /* wider when sliding in on mobile */
-  .sidebar {
-    transform: translateX(-120%); /* hidden by default on mobile */
-    box-shadow: 0 8px 30px rgba(0,0,0,0.35);
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
-
-  .mobile-header { display: block; }
-
-  .mobile-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 50;
-  }
-  .mobile-overlay.show { display: block; }
-
-  .main {
-    margin-left: 0;
-    padding: 1rem;
-  }
-}
 
 /* Ensure visible focus outlines for keyboard users */
 button:focus, [tabindex="0"]:focus { outline: 3px solid rgba(46,125,50,0.22); outline-offset: 2px; }
